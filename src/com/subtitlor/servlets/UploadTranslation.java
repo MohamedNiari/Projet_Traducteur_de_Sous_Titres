@@ -5,8 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -25,7 +23,7 @@ import com.subtitlor.utilities.SubtitlesHandler;
 @MultipartConfig
 @WebServlet("/UploadTranslation")
 public class UploadTranslation extends HttpServlet {
-	
+
 	private static final long serialVersionUID = 1L;
 	public static final int TAILLE_TAMPON = 10240;
 	private static final String FILE_NAME = "/WEB-INF/password_presentation.srt";
@@ -53,7 +51,7 @@ public class UploadTranslation extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
+
 		this.getServletContext().getRequestDispatcher("/uploadFile.jsp").forward(request, response);
 	}
 
@@ -63,7 +61,7 @@ public class UploadTranslation extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-				
+
 		ServletContext context = getServletContext();
 
 		File oldFileToDelete = new File(context.getRealPath(FILE_NAME));

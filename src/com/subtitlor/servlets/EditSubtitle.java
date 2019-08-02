@@ -2,9 +2,6 @@ package com.subtitlor.servlets;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,7 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.subtitlor.bdd.MysqlRequest;
+import com.subtitlor.dao.DaoFactory;
+import com.subtitlor.dao.DaoRequestSQL;
 import com.subtitlor.utilities.SubtitlesHandler;
 
 @WebServlet("/EditSubtitle")
@@ -25,6 +23,13 @@ public class EditSubtitle extends HttpServlet {
 
 	SubtitlesHandler subtitles = new SubtitlesHandler();
 	Boolean recordedTranslation;
+	
+    private DaoRequestSQL daoRequestSQL;
+
+    public void init() throws ServletException {    	
+        DaoFactory daoFactory = DaoFactory.getInstance(); 
+        this.daoRequestSQL = daoFactory.getDaoRequest();
+    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -32,14 +37,12 @@ public class EditSubtitle extends HttpServlet {
 		
 		ServletContext context = getServletContext();
 		System.out.println("Chemin du fichier à traduire : " + context.getRealPath(FILE_NAME));
-		System.out.println("the working path is : " + new File(".").getAbsoluteFile());
+		System.out.println("Le working path est : " + new File(".").getAbsoluteFile());
 		
 		subtitles.readSubtitlesFile(context.getRealPath(FILE_NAME));
 
 		request.setAttribute("recordedTranslation", recordedTranslation);
 		request.setAttribute("originalSubtitles", subtitles.getOriginalSubtitles());
-		
-
 
 		this.getServletContext().getRequestDispatcher("/edit_subtitle.jsp").forward(request, response);
 
@@ -58,15 +61,12 @@ public class EditSubtitle extends HttpServlet {
 		subtitles.readSubtitlesFile(context.getRealPath(FILE_NAME));
 		subtitles.saveTranslatedSubtitles(texteTraduit, context.getRealPath(TRANSLATED_FILE_NAME));
 
-		MysqlRequest mysqlRequest = new MysqlRequest();
-		mysqlRequest.initSubtitles();
-		mysqlRequest.saveSubtitles(subtitles);
+		daoRequestSQL.initSubtitles();
+		daoRequestSQL.saveSubtitles(subtitles);
 
 		request.setAttribute("originalSubtitles", subtitles.getOriginalSubtitles());
 		request.setAttribute("translatedSubtitles", subtitles.getTranslatedSubtitles());
 		request.setAttribute("recordedTranslation", recordedTranslation);
-
-
 
 		this.getServletContext().getRequestDispatcher("/edit_subtitle.jsp").forward(request, response);
 

@@ -27,8 +27,7 @@ public class SubtitlesHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+		int i =0;
 	}
 
 	public void saveTranslatedSubtitles(String[] texteTraduit, String newFilename) throws IOException {
@@ -40,7 +39,6 @@ public class SubtitlesHandler {
 			translatedSubtitles.add(text);
 		}
 
-		
 		for (int i = 0; i < texteTraduit.length; i++) {
 
 			String boucleOriginalLines = originalSubtitles.get(i);
@@ -69,7 +67,6 @@ public class SubtitlesHandler {
 		Files.copy(FROM, TO, options);
 
 	}
-
 
 	public List<String> getOriginalSubtitles() {
 		return originalSubtitles;

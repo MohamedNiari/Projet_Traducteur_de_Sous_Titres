@@ -10,7 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.subtitlor.bdd.MysqlRequest;
+import com.subtitlor.dao.DaoFactory;
+import com.subtitlor.dao.DaoRequestSQL;
 import com.subtitlor.utilities.SubtitlesHandler;
 
 /**
@@ -24,6 +25,13 @@ public class UpdateTranslation extends HttpServlet {
 
 	SubtitlesHandler subtitles = new SubtitlesHandler();
 	Boolean recordedTranslation;
+	
+    private DaoRequestSQL daoRequestSQL;
+
+    public void init() throws ServletException {    	
+        DaoFactory daoFactory = DaoFactory.getInstance();  
+        this.daoRequestSQL = daoFactory.getDaoRequest();
+    }
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -46,8 +54,7 @@ public class UpdateTranslation extends HttpServlet {
 		ServletContext context = getServletContext();
 		subtitles.readSubtitlesFile(context.getRealPath(FILE_NAME));
 
-		MysqlRequest mysqlRequest = new MysqlRequest();
-		List<String> listTranslatedText = mysqlRequest.readSubtitled();
+		List<String> listTranslatedText = daoRequestSQL.readSubtitled();
 
 		request.setAttribute("recordedTranslation", recordedTranslation);
 		request.setAttribute("originalSubtitles", subtitles.getOriginalSubtitles());
@@ -71,8 +78,7 @@ public class UpdateTranslation extends HttpServlet {
 
 		subtitles.saveTranslatedSubtitles(texteTraduit, context.getRealPath(TRANSLATED_FILE_NAME));
 
-		MysqlRequest mysqlRequest = new MysqlRequest();
-		mysqlRequest.updateSubtitles(subtitles);
+		daoRequestSQL.updateSubtitles(subtitles);
 
 		subtitles.readSubtitlesFile(context.getRealPath(FILE_NAME));
 		request.setAttribute("originalSubtitles", subtitles.getOriginalSubtitles());

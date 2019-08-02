@@ -1,7 +1,6 @@
-package com.subtitlor.bdd;
+package com.subtitlor.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,19 +8,50 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.subtitlor.beans.Subtitles;
 import com.subtitlor.utilities.SubtitlesHandler;
 
-public class MysqlRequest {
-	private Connection connexion;
-	private PreparedStatement preparedStatement;
+public class DaoRequestSQLImplementation implements DaoRequestSQL {
+	private DaoFactory daoFactory;
+
+	DaoRequestSQLImplementation(DaoFactory daoFactory) {
+		this.daoFactory = daoFactory;
+	}
+	
+	public List<String> readSubtitled() {
+
+		List<String> translatedSubtitles = new ArrayList<String>();
+
+		Connection connexion = null;
+		Statement statement = null;
+		ResultSet resultat = null;
+
+		try {
+			connexion = daoFactory.getConnection();
+			statement = connexion.createStatement();
+			resultat = statement.executeQuery("SELECT `texteTraduit` FROM translation.texte;");
+
+			while (resultat.next()) {
+				String textTranslated = resultat.getString("texteTraduit");
+
+				translatedSubtitles.add(textTranslated);
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return translatedSubtitles;
+	}
 
 	public void saveSubtitles(SubtitlesHandler subtitles) {
 
-		connexion = null;
-		preparedStatement = null;
+		Connection connexion = null;
+		PreparedStatement preparedStatement = null;
 
 		try {
-			loadDatabase();
+			connexion = daoFactory.getConnection();
 			for (int i = 0; i < subtitles.getOriginalSubtitles().size(); i++) {
 
 				preparedStatement = connexion
@@ -41,11 +71,11 @@ public class MysqlRequest {
 
 	public void updateSubtitles(SubtitlesHandler subtitles) {
 
-		connexion = null;
-		preparedStatement = null;
+		Connection connexion = null;
+		PreparedStatement preparedStatement = null;
 
 		try {
-			loadDatabase();
+			connexion = daoFactory.getConnection();
 			for (int i = 0; i < subtitles.getOriginalSubtitles().size(); i++) {
 
 				preparedStatement = connexion
@@ -63,18 +93,17 @@ public class MysqlRequest {
 
 	}
 
-	public List<String> readSubtitled() {
+	public List<String> getTranslatedSubtitled() {
 
 		List<String> translatedSubtitles = new ArrayList<String>();
-
-		connexion = null;
-		preparedStatement = null;
+		Connection connexion = null;
 		Statement statement = null;
 		ResultSet resultat = null;
 
 		try {
-			loadDatabase();
+			connexion = daoFactory.getConnection();
 			statement = connexion.createStatement();
+
 			resultat = statement.executeQuery("SELECT `texteTraduit` FROM translation.texte;");
 
 			while (resultat.next()) {
@@ -93,11 +122,11 @@ public class MysqlRequest {
 
 	public void initSubtitles() {
 
-		connexion = null;
-		preparedStatement = null;
+		Connection connexion = null;
+		PreparedStatement preparedStatement = null;
 
 		try {
-			loadDatabase();
+			connexion = daoFactory.getConnection();
 
 			preparedStatement = connexion.prepareStatement("delete FROM translation.texte");
 
@@ -108,26 +137,5 @@ public class MysqlRequest {
 		}
 
 	}
-
-	private void loadDatabase() {
-
-		try {              
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			connexion = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/translation?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",
-					"hbstudent", "hbstudent");
-			
-			if (connexion != null) {
-				System.out.println("Connected to the database");
-			}
-		} catch (ClassNotFoundException e) {
-			System.out.println("issue driver mysql");
-
-		} catch (SQLException e) {
-			System.out.println("issue connecting to the database");
-			e.printStackTrace();
-		}
-	}
-
 
 }
